@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Технологии{% endblock %}
+{% block content %}
+  <main role="main" class="container">
+    <div class="row">
+      <div class="col-md-3 mb-3 mt-1">
+        <div class="card">
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <div class="h3">Технологии:</div>
+              </li>
+              <li class="list-group-item">
+                <div class="h6 text-muted">Python, Django и VCS наше все!</div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      {% with card_text='Создание проекта далось потом,кровью и чередой эмоциональных выгораний.' %}
+        {% include 'about/includes/description.html' %}
+      {% endwith %}
+    </div>
+  </main>
+{% endblock %}

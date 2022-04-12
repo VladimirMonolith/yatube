@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Об авторе проекта{% endblock %}
+{% block content %}
+  <main role="main" class="container">
+    <div class="row">
+      <div class="col-md-3 mb-3 mt-1">
+        <div class="card">
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <div class="h3">Об авторе</div>
+              </li>
+              <li class="list-group-item">
+                <div class="h6 text-muted">
+                  <img src="{% static 'img/Me.png' %}"
+                       alt="My image"
+                       style="display: block;
+                              width: 100%;
+                              height: auto;
+                              margin: auto;">
+                  <p>
+                    Гут Владимир
+                  </p>
+                  <p>
+                    GitHub:
+                  </p>
+                  <a href="https://github.com/VladimirMonolith">https://github.com/VladimirMonolith</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      {% with card_text='Автор - начинающий программист.У него нет ни кошечек,ни собак,ни резиновых уточек.<br>Не сдаваться и идти дальше его вдохновляет девушка по имени Дина.))' %}
+        {% include 'about/includes/description.html' %}
+      {% endwith %}
+    </div>
+  </main>
+{% endblock %}
