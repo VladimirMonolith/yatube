@@ -10,7 +10,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from ..models import Follow, Group, Post
+from ..models import Comment, Follow, Group, Post
 
 User = get_user_model()
 
@@ -150,9 +150,20 @@ class PostViewsTests(TestCase):
     def test_post_detail_page_show_correct_context(self):
         """Шаблон post_detail сформирован с правильным контекстом."""
         self.context_post_is_valid(PostViewsTests.POST_DETAIL_URL)
+        user = User.objects.create_user(username='testAuthorized')
+        Comment.objects.create(
+            post=PostViewsTests.post,
+            author=user,
+            text="Тестовый коммент!"
+        )
         response = PostViewsTests.author_client.get(
             PostViewsTests.POST_DETAIL_URL
         )
+        comment = response.context['comments'][0]
+        self.assertIsInstance(comment, Comment)
+        self.assertEqual(comment.author, user)
+        self.assertEqual(comment.post, PostViewsTests.post)
+        self.assertEqual(response.context['comments'].count(), 1)
         field = response.context['form'].fields['text']
         self.assertIsInstance(field, forms.fields.CharField)
 

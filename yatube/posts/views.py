@@ -57,9 +57,11 @@ def post_detail(request, post_id):
     """Функция для отображения конкретной записи."""
     post = get_object_or_404(Post, pk=post_id)
     form = CommentForm()
+    comments = post.comments.all()
     context = {
         'post': post,
-        'form': form
+        'form': form,
+        'comments': comments
     }
     return render(request, 'posts/post_detail.html', context)
 
