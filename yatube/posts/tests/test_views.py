@@ -154,7 +154,7 @@ class PostViewsTests(TestCase):
         Comment.objects.create(
             post=PostViewsTests.post,
             author=user,
-            text="Тестовый коммент!"
+            text='Тестовый коммент!'
         )
         response = PostViewsTests.author_client.get(
             PostViewsTests.POST_DETAIL_URL
@@ -214,16 +214,11 @@ class PostViewsTests(TestCase):
 
     def test_index_cache(self):
         """Проверяем, что кеширование главной страницы работает."""
-        new_form_data = {
-            'text': 'Комментарий проверки кэша',
-            'group': PostViewsTests.group.pk
-        }
-        self.author_client.post(
-            PostViewsTests.POST_CREATE_URL,
-            data=new_form_data,
-            follow=True
+        new_post = Post.objects.create(
+            text='Комментарий проверки кэша',
+            author=PostViewsTests.author,
+            group=PostViewsTests.group
         )
-        new_post = Post.objects.get(text='Комментарий проверки кэша')
         current_content = PostViewsTests.author_client.get(
             PostViewsTests.INDEX_URL
         ).content
@@ -348,8 +343,10 @@ class FollowViewsTests(TestCase):
                 author=FollowViewsTests.author
             ).exists()
         )
+        follow = Follow.objects.latest('id')
+        self.assertEqual(follow.user, self.user)
+        self.assertEqual(follow.author, FollowViewsTests.author)
         self.assertRedirects(response, FollowViewsTests.PROFILE_URL)
-        self.assertEqual(Follow.objects.count(), 1)
 
     def test_authorized_unfollow_author(self):
         """Проверяем, что авторизованный пользователь
@@ -360,14 +357,8 @@ class FollowViewsTests(TestCase):
         response = self.authorized_client.get(
             FollowViewsTests.PROFILE_UNFOLLOW_URL
         )
-        self.assertFalse(
-            Follow.objects.filter(
-                user=self.user,
-                author=FollowViewsTests.author
-            ).exists()
-        )
-        self.assertRedirects(response, FollowViewsTests.PROFILE_URL)
         self.assertEqual(Follow.objects.count(), 0)
+        self.assertRedirects(response, FollowViewsTests.PROFILE_URL)
 
     def test_guest_client_not_allowed_follow_author(self):
         """Проверяем, что незарегистрированный пользователь
@@ -379,14 +370,8 @@ class FollowViewsTests(TestCase):
         response = self.guest_client.get(
             FollowViewsTests.PROFILE_FOLLOW_URL
         )
-        self.assertFalse(
-            Follow.objects.filter(
-                user=self.user,
-                author=FollowViewsTests.author
-            ).exists()
-        )
-        self.assertRedirects(response, follow_guest_redirect_url)
         self.assertEqual(Follow.objects.count(), 0)
+        self.assertRedirects(response, follow_guest_redirect_url)
 
     def test_follow_context(self):
         """Проверяем, что новая запись пользователя появляется

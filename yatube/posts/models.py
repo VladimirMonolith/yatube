@@ -3,11 +3,16 @@ from django.db import models
 
 User = get_user_model()
 
+LENGTH_TEXT = 15
+
 
 class Post(models.Model):
     """Класс для создания записей."""
 
-    text = models.TextField(verbose_name='запись')
+    text = models.TextField(
+        verbose_name='Запись',
+        help_text='Пожалуйста, оставьте Вашу запись'
+    )
     pub_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата публикации',
@@ -25,7 +30,8 @@ class Post(models.Model):
         related_name='posts',
         blank=True,
         null=True,
-        verbose_name='сообщество'
+        verbose_name='Сообщество',
+        help_text='Пожалуйста, выберите Вашу группу'
     )
     image = models.ImageField(
         upload_to='posts/',
@@ -39,7 +45,7 @@ class Post(models.Model):
         ordering = ('-pub_date',)
 
     def __str__(self):
-        return self.text[:15]
+        return self.text[:LENGTH_TEXT]
 
 
 class Group(models.Model):
@@ -80,7 +86,10 @@ class Comment(models.Model):
         related_name='comments',
         verbose_name='Автор'
     )
-    text = models.TextField(verbose_name='комментарий')
+    text = models.TextField(
+        verbose_name='Комментарий',
+        help_text='Пожалуйста, оставьте Ваш комментарий'
+    )
     created = models.DateTimeField(
         auto_now_add=True,
         verbose_name='дата публикации',
@@ -93,7 +102,7 @@ class Comment(models.Model):
         ordering = ('-created',)
 
     def __str__(self):
-        return self.text[:15]
+        return self.text[:LENGTH_TEXT]
 
 
 class Follow(models.Model):
@@ -116,3 +125,7 @@ class Follow(models.Model):
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         ordering = ('author',)
+
+        constraints = (models.UniqueConstraint(
+            fields=['author', 'user'], name='unique_follow'
+        ),)

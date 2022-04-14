@@ -14,8 +14,8 @@ Cоциальная сеть.Позволяет авторам создават�
 ``` pip install -r requirements.txt ```
 - Перейдите в папку hw05_final/yatube.
 - Примените миграции:
-``` python yatube/manage.py makemigrations ```
-``` python yatube/manage.py migrate ```
+``` python manage.py makemigrations ```
+``` python manage.py migrate ```
 - Выполните команду: 
 ``` python manage.py runserver ``` 
 #### Автор:

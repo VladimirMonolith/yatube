@@ -55,41 +55,11 @@ class PostFormTests(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
-    def test_form_labels(self):
-        """Проверяем, что label в полях формы PostForm
-        совпадает с ожидаемым."""
-        labels_data = {
-            'text': 'Ваша запись',
-            'group': 'Сообщество'
-        }
-
-        for field, label in labels_data.items():
-            with self.subTest(field=field):
-                self.assertEqual(
-                    PostFormTests.form.fields[field].label,
-                    label
-                )
-
-    def test_form_help_text(self):
-        """Проверяем, что help_text в полях формы PostForm
-        совпадает с ожидаемым."""
-        help_texts_data = {
-            'text': 'Пожалуйста, оставьте Вашу запись',
-            'group': 'Пожалуйста, выберите Вашу группу',
-        }
-
-        for field, help_text in help_texts_data.items():
-            with self.subTest(field=field):
-                self.assertEqual(
-                    PostFormTests.form.fields[field].help_text,
-                    help_text
-                )
-
     def count_posts(self):
         """Подсчитывает количество записей."""
         return Post.objects.count()
 
-    def test_autorized_client_create_form(self):
+    def test_authorized_client_create_form(self):
         """Проверяем, что авторизованный пользователь
         создает запись c изображением."""
         small_gif = (
@@ -100,16 +70,18 @@ class PostFormTests(TestCase):
             b'\x02\x00\x01\x00\x00\x02\x02\x0C'
             b'\x0A\x00\x3B'
         )
+        small_gif_name = 'small.gif'
         test_image = SimpleUploadedFile(
-            name='small.gif',
+            name=small_gif_name,
             content=small_gif,
             content_type='image/gif'
         )
         post_aut_detail_url = reverse(
             'posts:profile', kwargs={'username': 'testAuthorized'}
         )
+        text = 'Текст авторизованного пользователя'
         create_form_data = {
-            'text': 'Текст авторизованного пользователя',
+            'text': text,
             'group': PostFormTests.group.pk,
             'image': test_image
         }
@@ -120,8 +92,8 @@ class PostFormTests(TestCase):
         )
         self.assertTrue(
             Post.objects.filter(
-                text='Текст авторизованного пользователя',
-                image='posts/small.gif'
+                text=text,
+                image=f'posts/{small_gif_name}'
             ).exists()
         )
         self.assertRedirects(response, post_aut_detail_url)
@@ -131,8 +103,9 @@ class PostFormTests(TestCase):
         """Проверяем, что анонимный пользователь не создает запись в Post
         и перенаправляется на страницу /auth/login/ """
         post_guest_redirect_url = '/auth/login/?next=/create/'
+        text = 'Текст анонимного пользователя'
         create_form_data = {
-            'text': 'Текст анонимного пользователя',
+            'text': text,
         }
         response = self.guest_client.post(
             PostFormTests.POST_CREATE_URL,
@@ -141,7 +114,7 @@ class PostFormTests(TestCase):
         )
         self.assertFalse(
             Post.objects.filter(
-                text='Текст анонимного пользователя',
+                text=text,
             ).exists()
         )
         self.assertRedirects(response, post_guest_redirect_url)
@@ -149,8 +122,9 @@ class PostFormTests(TestCase):
 
     def test_author_edit_form(self):
         """ Проверяем, что запись успешно редактируется автором."""
+        text = 'Отредактированный текст'
         edit_form_data = {
-            'text': 'Отредактированный текст',
+            'text': text,
             'group': self.group.pk,
         }
         edit_response = self.author_client.post(
@@ -160,7 +134,7 @@ class PostFormTests(TestCase):
         )
         self.assertTrue(
             Post.objects.filter(
-                text='Отредактированный текст',
+                text=text,
             ).exists()
         )
         self.assertRedirects(edit_response, PostFormTests.POST_DETAIL_URL)
@@ -169,8 +143,9 @@ class PostFormTests(TestCase):
     def test_autorized_not_allowed_edit_form(self):
         """ Проверяем, что зарегистрированный пользователь
         не может редактировать чужую запись."""
+        text = 'Коварно изменяю запись'
         edit_form_data = {
-            'text': 'Коварно изменяю запись',
+            'text': text,
             'group': PostFormTests.group.pk
         }
         edit_response = self.authorized_client.post(
@@ -180,7 +155,7 @@ class PostFormTests(TestCase):
         )
         self.assertFalse(
             Post.objects.filter(
-                text='Коварно изменяю запись',
+                text=text,
             ).exists()
         )
         self.assertRedirects(edit_response, PostFormTests.POST_DETAIL_URL)
@@ -221,18 +196,21 @@ class CommentFormTests(TestCase):
     def test_authorized_client_comments_post(self):
         """Проверяем, что авторизованный пользователь
         может комментировать записи"""
-        comment_form_data = {'text': 'Длинный комментарий'}
+        text = 'Длинный комментарий'
+        comment_form_data = {'text': text}
         comment_response = self.authorized_client.post(
             CommentFormTests.COMMENT,
             data=comment_form_data,
             follow=True
         )
-        self.assertTrue(
-            Comment.objects.filter(text='Длинный комментарий').exists())
+        comment = Comment.objects.latest('created')
+        self.assertEqual(Comment.objects.count(), 1)
+        self.assertEqual(comment.text, text)
+        self.assertEqual(comment.author, self.user)
+        self.assertEqual(comment.post, CommentFormTests.post)
         self.assertRedirects(
             comment_response, CommentFormTests.POST_DETAIL_URL
         )
-        self.assertEqual(Comment.objects.count(), 1)
 
     def test_guest_client_not_allowed_comment_post(self):
         """Проверяем, что незарегистрированный пользователь
@@ -240,15 +218,14 @@ class CommentFormTests(TestCase):
         comment_guest_redirect_url = (
             f'/auth/login/?next=/posts/{CommentFormTests.post.id}/comment/'
         )
-        comment_form_data = {'text': 'Комментарий гостя'}
+        text = 'Комментарий гостя'
+        comment_form_data = {'text': text}
         comment_response = self.guest_client.post(
             CommentFormTests.COMMENT,
             data=comment_form_data,
             follow=True
         )
-        self.assertFalse(
-            Comment.objects.filter(text='Комментарий гостя').exists())
+        self.assertEqual(Comment.objects.count(), 0)
         self.assertRedirects(
             comment_response, comment_guest_redirect_url
         )
-        self.assertEqual(Comment.objects.count(), 0)

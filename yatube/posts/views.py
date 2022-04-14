@@ -40,11 +40,9 @@ def profile(request, username):
     """Функция для отображения профиля пользователя."""
     author = get_object_or_404(User, username=username)
     post_list = author.posts.select_related('group')
-    following = False
-    if request.user.is_authenticated:
-        following = Follow.objects.filter(
-            user=request.user, author=author
-        ).exists()
+    following = request.user.is_authenticated and (
+        request.user.follower.filter(author=author).exists()
+    )
     context = {
         'author': author,
         'page_obj': paginator(request, post_list),
@@ -134,5 +132,5 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     author = get_object_or_404(User, username=username)
-    Follow.objects.get(user=request.user, author=author).delete()
+    Follow.objects.filter(user=request.user, author=author).delete()
     return redirect('posts:profile', username=username)

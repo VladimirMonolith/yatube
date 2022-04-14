@@ -22,10 +22,12 @@ class PostModelTest(TestCase):
             group=cls.group
         )
 
+        cls.LENGTH_TEXT = 15
+
     def test_model_post_have_correct_str_text(self):
         """Проверяем, что у модели Post корректно работает __str__."""
         post = PostModelTest.post
-        post_text = post.text[:15]
+        post_text = post.text[:PostModelTest.LENGTH_TEXT]
         self.assertEqual(str(post), post_text)
 
     def test_model_group_have_correct_str_title(self):
@@ -39,10 +41,10 @@ class PostModelTest(TestCase):
         совпадает с ожидаемым."""
         post = PostModelTest.post
         field_verboses = {
-            'text': 'запись',
+            'text': 'Запись',
             'pub_date': 'Дата публикации',
             'author': 'автор',
-            'group': 'сообщество',
+            'group': 'Сообщество',
         }
         for value, expected in field_verboses.items():
             with self.subTest(value=value):
@@ -64,5 +66,20 @@ class PostModelTest(TestCase):
             with self.subTest(value=value):
                 self.assertEqual(
                     group._meta.get_field(value).verbose_name,
+                    expected
+                )
+
+    def test_post_help_text(self):
+        """Проверяем, что help_text в полях модели Post
+        совпадает с ожидаемым."""
+        post = PostModelTest.post
+        field_help = {
+            'text': 'Пожалуйста, оставьте Вашу запись',
+            'group': 'Пожалуйста, выберите Вашу группу'
+        }
+        for value, expected in field_help.items():
+            with self.subTest(value=value):
+                self.assertEqual(
+                    post._meta.get_field(value).help_text,
                     expected
                 )
