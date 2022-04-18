@@ -6,8 +6,7 @@
     {{ group.description }}
   </p>
   {% for post in page_obj %}
-    {% include 'posts/includes/post_content.html' %}
-    {% if not forloop.last %}<hr>{% endif %}
+    {% include 'posts/includes/post_content.html' with show_author=True show_group=False %}    
   {% endfor %}
   {% include 'posts/includes/paginator.html' %}
 {% endblock %}

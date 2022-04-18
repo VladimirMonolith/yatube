@@ -6,11 +6,7 @@
   {% include 'posts/includes/switcher.html' %}
   {% cache 20 index_page %}
   {% for post in page_obj %}
-    {% include 'posts/includes/post_content.html' %}
-    {% if post.group %}
-      <a href="{% url 'posts:group_list' post.group.slug %}">все записи сообщества {{ post.group.title }}</a>
-    {% endif %}
-    {% if not forloop.last %}<hr>{% endif %}
+    {% include 'posts/includes/post_content.html' with show_author=True show_group=True %}    
   {% endfor %}
   {% endcache %}
   {% include 'posts/includes/paginator.html' %}
