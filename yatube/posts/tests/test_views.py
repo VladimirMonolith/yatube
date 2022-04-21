@@ -334,7 +334,7 @@ class FollowViewsTests(TestCase):
     def test_authorized_follow_author(self):
         """Проверяем, что авторизованный пользователь
         может подписываться на авторов"""
-        response = self.authorized_client.get(
+        response = self.authorized_client.post(
             FollowViewsTests.PROFILE_FOLLOW_URL
         )
         self.assertTrue(
@@ -354,7 +354,7 @@ class FollowViewsTests(TestCase):
         Follow.objects.create(
             user=self.user, author=FollowViewsTests.author
         )
-        response = self.authorized_client.get(
+        response = self.authorized_client.post(
             FollowViewsTests.PROFILE_UNFOLLOW_URL
         )
         self.assertEqual(Follow.objects.count(), 0)
@@ -367,7 +367,7 @@ class FollowViewsTests(TestCase):
             f'/auth/login/?next=/profile/{self.author.username}/follow/'
         )
 
-        response = self.guest_client.get(
+        response = self.guest_client.post(
             FollowViewsTests.PROFILE_FOLLOW_URL
         )
         self.assertEqual(Follow.objects.count(), 0)
