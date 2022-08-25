@@ -1,5 +1,5 @@
 .vscode/
-yatube/static
+# yatube/static
 yatube/media
 
 # Byte-compiled / optimized / DLL files
