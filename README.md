@@ -18,7 +18,7 @@
 ``` source venv/Scripts/activate ``` 
 - Установите зависимости из файла requirements.txt:   
 ``` pip install -r requirements.txt ```
-- Перейдите в папку hw05_final/yatube.
+- Перейдите в папку Yatube/yatube.
 - Примените миграции:  
 ``` python manage.py makemigrations ```  
 ``` python manage.py migrate ```
