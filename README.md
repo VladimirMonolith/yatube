@@ -21,5 +21,5 @@
 ``` python manage.py migrate ```
 - Выполните команду:   
 ``` python manage.py runserver ``` 
-### Автор
+### Автор7
 Гут Владимир
