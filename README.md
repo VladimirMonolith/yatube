@@ -12,17 +12,17 @@
 #### Запуск проекта в dev-режиме
 
 - Склонируйте репозиторий:  
-``` git clone <название репозитория> ```    
+``` git clone <название репозитория> ```
 - Установите и активируйте виртуальное окружение:  
 ``` python -m venv venv ```  
-``` source venv/Scripts/activate ``` 
-- Установите зависимости из файла requirements.txt:   
+``` source venv/Scripts/activate ```
+- Установите зависимости из файла requirements.txt:
 ``` pip install -r requirements.txt ```
 - Перейдите в папку yatube/yatube.
 - Примените миграции:  
 ``` python manage.py makemigrations ```  
 ``` python manage.py migrate ```
-- Выполните команду:   
+- Выполните команду:
 ``` python manage.py runserver ```
 
 #### Автор
